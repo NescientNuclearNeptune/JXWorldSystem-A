@@ -1,0 +1,40 @@
+package com.jhnuxer.gametest0.iarm2;
+
+import java.awt.*;
+import java.io.*;
+import java.util.*;
+import javax.script.*;
+
+import com.jhnuxer.gametest0.*;
+
+public class ScriptedIarm2GenPass extends AIarm2GenPass {
+  String script;
+  boolean done = false;
+  ScriptEngine engine = Main.JS;
+
+  public ScriptedIarm2GenPass(Iarm2 iarm,File script) {
+    super("Running Pass Script...",1,iarm);
+    this.script = "";
+
+    try (BufferedReader reader = new BufferedReader(new FileReader(script))) {
+      String l = "";
+      while ((l = reader.readLine()) != null) this.script += (l + "\n");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void run() {
+    try (FileReader fr = new FileReader("data"+File.separator+"dscore0.js")) {
+      engine.eval(fr);
+      engine.put("SIZE",iarm2.getIarmSize());
+      engine.put("IARM",iarm2);
+      engine.eval(script);
+      done = true;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public int getCompleted() { return done ? 1 : 0 ; }
+}
